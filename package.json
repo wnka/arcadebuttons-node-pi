@@ -1,0 +1,10 @@
+{
+  "name": "arcade-buttons",
+  "description": "Read arcade buttons off GPIO pins",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+      "socket.io": "0.9.x",
+      "rpi-gpio": "0.0.4"
+  }
+}
