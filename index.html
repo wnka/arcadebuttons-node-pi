@@ -3,7 +3,8 @@
 <title>Buttons</title>
 </head>
 <h1 id="yo">Hey</h1>
-<h1 id="button">Button ??</h1>
+<h1 id="button1">Button1 ??</h1>
+<h1 id="button2">Button2 ??</h1>
 <script src="/socket.io/socket.io.js"></script>
 <script>
   var socket = io.connect();
@@ -12,8 +13,12 @@
     d.innerHTML = data.hello;
   });
   socket.on('button', function(data) {
-    var d = document.getElementById("button");
-    d.innerHTML = "Button " + (data.v === 0 ? "DOWN" : "UP");
+    var d = document.getElementById("button1");
+    d.innerHTML = "Button1 " + (data.v === 0 ? "DOWN" : "UP");
+  });
+  socket.on('button2', function(data) {
+    var d = document.getElementById("button2");
+    d.innerHTML = "Button2 " + (data.v === 0 ? "DOWN" : "UP");
   });
 </script>
 </html>
