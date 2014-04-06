@@ -1,8 +1,10 @@
 var app = require('http').createServer(handler)
   , io = require('socket.io').listen(app)
   , fs = require('fs')
-//  , gpio = require('rpi-gpio');
+  , Gpio = require('onoff').Gpio
+  , button = new Gpio(27, 'in', 'both');
 
+io.set('log level', 1);
 app.listen(8081);
 
 function handler (req, res) {
@@ -19,28 +21,17 @@ function handler (req, res) {
 }
 
 io.sockets.on('connection', function (socket) {
-  socket.emit('news', { hello: 'world' });
-  socket.on('my other event', function (data) {
-    console.log(data);
-  });
+  socket.emit('news', { hello: 'This is Buttons' });
 });
 
-i = 0;
-
-setInterval(function() {
-    io.sockets.emit('news', {hello:i++});
-}, 1000);
-
-// gpio.setup(27, gpio.DIR_IN, readInput);
-// 
-// function readInput() {
-//     gpio.read(27, function(err, value) {
-//         io.sockets.emit('button', {hello:value});
-//     });
-// }
-
-gpio.on('change', function(channel, value) {
-    console.log('Channel ' + channel + ' value is now ' + value);
-    io.sockets.emit('button', {hello:value});
+button.watch(function(err, value) {
+    if (err) exit();
+    io.sockets.emit('button', {v:value});
 });
-gpio.setup(27, gpio.DIR_IN);
+
+function exit() {
+    button.unexport();
+    process.exit();
+}
+
+process.on('SIGINT', exit);
