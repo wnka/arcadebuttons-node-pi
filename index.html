@@ -2,23 +2,54 @@
 <head>
 <title>Buttons</title>
 </head>
-<h1 id="yo">Hey</h1>
-<h1 id="button1">Button1 ??</h1>
-<h1 id="button2">Button2 ??</h1>
+
+<p align = "center">
+<table border=0 width="80%" height="60%">
+<tr><td></td><td class = "up" id="up"></tr>
+<tr><td class="up" id="left"></td><td></td><td id="right" class="up"></td><td></td>
+  <td class="up" id="b1"></td><td class="up" id="b2"></td><td class="up" id="b3"></td></tr>
+<tr><td></td><td class="up" id="down"></td><td></td><td></td><td class="up" id="b4"></tr>
+</table>
+</p>
+
+<style>
+.up {background-color: lightgrey}
+.down {background-color: red}
+</style>
+
 <script src="/socket.io/socket.io.js"></script>
 <script>
   var socket = io.connect();
+
+  var toggle = function(node, val) {
+    node.className = (val === 0 ? "down" : "up");
+  }
   socket.on('news', function (data) {
-    var d = document.getElementById("yo");
+    var d = document.getElementById("title");
     d.innerHTML = data.hello;
   });
   socket.on('button', function(data) {
-    var d = document.getElementById("button1");
-    d.innerHTML = "Button1 " + (data.v === 0 ? "DOWN" : "UP");
+    // For now, toggle everything!
+    var d = document.getElementById("right");
+    toggle(d, data.v);
+    var d = document.getElementById("left");
+    toggle(d, data.v);
+    var d = document.getElementById("up");
+    toggle(d, data.v);
+    var d = document.getElementById("down");
+    toggle(d, data.v);
+    var d = document.getElementById("b1");
+    toggle(d, data.v);
+    var d = document.getElementById("b2");
+    toggle(d, data.v);
+    var d = document.getElementById("b3");
+    toggle(d, data.v);
+    var d = document.getElementById("b4");
+    toggle(d, data.v);
   });
   socket.on('button2', function(data) {
-    var d = document.getElementById("button2");
-    d.innerHTML = "Button2 " + (data.v === 0 ? "DOWN" : "UP");
+    var d = document.getElementById("left");
+    toggle(d, data.v);
   });
 </script>
 </html>
