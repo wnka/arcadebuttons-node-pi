@@ -5,7 +5,7 @@ var app = require('http').createServer(handler)
   , button = new Gpio(27, 'in', 'both')
   , button2 = new Gpio(4, 'in', 'both');
 
-//io.set('log level', 1);
+io.set('log level', 1);
 app.listen(8081);
 
 function handler (req, res) {
@@ -35,6 +35,7 @@ button2.watch(function(err, value) {
 });
 function exit() {
     button.unexport();
+    button2.unexport();
     process.exit();
 }
 
