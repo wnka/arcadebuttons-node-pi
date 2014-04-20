@@ -2,8 +2,14 @@ var app = require('http').createServer(handler)
   , io = require('socket.io').listen(app)
   , fs = require('fs')
   , Gpio = require('onoff').Gpio
-  , button = new Gpio(27, 'in', 'both')
-  , button2 = new Gpio(4, 'in', 'both');
+  , up = new Gpio(24, 'in', 'both')
+  , down = new Gpio(17, 'in', 'both')
+  , left = new Gpio(23, 'in', 'both')
+  , right = new Gpio(22, 'in', 'both')
+  , b1 = new Gpio(18, 'in', 'both')
+  , b2 = new Gpio(27, 'in', 'both')
+  , b3 = new Gpio(25, 'in', 'both')
+  , b4 = new Gpio(4, 'in', 'both') // Currently the "start" button
 
 io.set('log level', 1);
 app.listen(8081);
@@ -25,17 +31,48 @@ io.sockets.on('connection', function (socket) {
   socket.emit('news', { hello: 'This is Buttons' });
 });
 
-button.watch(function(err, value) {
+up.watch(function(err, value) {
     if (err) exit();
-    io.sockets.emit('button', {v:value});
+    io.sockets.emit('up', {v:value});
 });
-button2.watch(function(err, value) {
+down.watch(function(err, value) {
     if (err) exit();
-    io.sockets.emit('button2', {v:value});
+    io.sockets.emit('down', {v:value});
 });
+left.watch(function(err, value) {
+    if (err) exit();
+    io.sockets.emit('left', {v:value});
+});
+right.watch(function(err, value) {
+    if (err) exit();
+    io.sockets.emit('right', {v:value});
+});
+b1.watch(function(err, value) {
+    if (err) exit();
+    io.sockets.emit('b1', {v:value});
+});
+b2.watch(function(err, value) {
+    if (err) exit();
+    io.sockets.emit('b2', {v:value});
+});
+b3.watch(function(err, value) {
+    if (err) exit();
+    io.sockets.emit('b3', {v:value});
+});
+b4.watch(function(err, value) {
+    if (err) exit();
+    io.sockets.emit('b4', {v:value});
+});
+
 function exit() {
-    button.unexport();
-    button2.unexport();
+    up.unexport();
+    down.unexport();
+    left.unexport();
+    right.unexport();
+    b1.unexport();
+    b2.unexport();
+    b3.unexport();
+    b4.unexport();
     process.exit();
 }
 

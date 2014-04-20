@@ -28,27 +28,36 @@
     var d = document.getElementById("title");
     d.innerHTML = data.hello;
   });
-  socket.on('button', function(data) {
-    // For now, toggle everything!
+  socket.on('right', function(data) {
     var d = document.getElementById("right");
     toggle(d, data.v);
+  });
+  socket.on('left', function(data) {
     var d = document.getElementById("left");
-    toggle(d, data.v);
-    var d = document.getElementById("up");
-    toggle(d, data.v);
-    var d = document.getElementById("down");
-    toggle(d, data.v);
-    var d = document.getElementById("b1");
-    toggle(d, data.v);
-    var d = document.getElementById("b2");
-    toggle(d, data.v);
-    var d = document.getElementById("b3");
-    toggle(d, data.v);
-    var d = document.getElementById("b4");
     toggle(d, data.v);
   });
-  socket.on('button2', function(data) {
-    var d = document.getElementById("left");
+  socket.on('up', function(data) {
+    var d = document.getElementById("up");
+    toggle(d, data.v);
+  });
+  socket.on('down', function(data) {
+    var d = document.getElementById("down");
+    toggle(d, data.v);
+  });
+  socket.on('b1', function(data) {
+    var d = document.getElementById("b1");
+    toggle(d, data.v);
+  });
+  socket.on('b2', function(data) {
+    var d = document.getElementById("b2");
+    toggle(d, data.v);
+  });
+  socket.on('b3', function(data) {
+    var d = document.getElementById("b3");
+    toggle(d, data.v);
+  });
+  socket.on('b4', function(data) {
+    var d = document.getElementById("b4");
     toggle(d, data.v);
   });
 </script>

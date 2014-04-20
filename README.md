@@ -16,3 +16,7 @@ for an actual arcade cabinet.
 So the idea is that I'll be able to have a Raspberry Pi under the control panel of my arcade cabinet with the control wires split off and plugged into the GPIO pins, then the Node app will provide a nice display that I can use while streaming. This is probably not the
 easiest or most lightweight way to do this but I wanted to play around with Node.js and the asynchronous nature of human inputs
 seemed like a good project to learn with. Network latency might be a problem, but we'll see.
+
+# Example video
+
+[Here is an example video of it actually working!](https://www.youtube.com/watch?v=uSHMhtIR2wg)
