@@ -11,7 +11,6 @@ var app = require('http').createServer(handler)
   , b3 = new Gpio(25, 'in', 'both')
   , b4 = new Gpio(4, 'in', 'both') // Currently the "start" button
 
-io.set('log level', 1);
 app.listen(8081);
 
 function handler (req, res) {
@@ -33,35 +32,35 @@ io.sockets.on('connection', function (socket) {
 
 up.watch(function(err, value) {
     if (err) exit();
-    io.sockets.emit('up', {v:value});
+    io.emit('up', {v:value});
 });
 down.watch(function(err, value) {
     if (err) exit();
-    io.sockets.emit('down', {v:value});
+    io.emit('down', {v:value});
 });
 left.watch(function(err, value) {
     if (err) exit();
-    io.sockets.emit('left', {v:value});
+    io.emit('left', {v:value});
 });
 right.watch(function(err, value) {
     if (err) exit();
-    io.sockets.emit('right', {v:value});
+    io.emit('right', {v:value});
 });
 b1.watch(function(err, value) {
     if (err) exit();
-    io.sockets.emit('b1', {v:value});
+    io.emit('b1', {v:value});
 });
 b2.watch(function(err, value) {
     if (err) exit();
-    io.sockets.emit('b2', {v:value});
+    io.emit('b2', {v:value});
 });
 b3.watch(function(err, value) {
     if (err) exit();
-    io.sockets.emit('b3', {v:value});
+    io.emit('b3', {v:value});
 });
 b4.watch(function(err, value) {
     if (err) exit();
-    io.sockets.emit('b4', {v:value});
+    io.emit('b4', {v:value});
 });
 
 function exit() {

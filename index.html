@@ -24,10 +24,6 @@
   var toggle = function(node, val) {
     node.className = (val === 0 ? "down" : "up");
   }
-  socket.on('news', function (data) {
-    var d = document.getElementById("title");
-    d.innerHTML = data.hello;
-  });
   socket.on('right', function(data) {
     var d = document.getElementById("right");
     toggle(d, data.v);
