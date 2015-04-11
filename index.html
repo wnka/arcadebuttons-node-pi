@@ -1,29 +1,36 @@
 <html>
+<meta name="viewport" content="initial-scale = 1.0,maximum-scale = 1.0" />
 <head>
 <title>Buttons</title>
 </head>
 
 <p align = "center">
 <table border=0 width="80%" height="60%">
-<tr><td></td><td class = "up" id="up"></tr>
-<tr><td class="up" id="left"></td><td></td><td id="right" class="up"></td><td></td>
-  <td class="up" id="b1"></td><td class="up" id="b2"></td><td class="up" id="b3"></td></tr>
-<tr><td></td><td class="up" id="down"></td><td></td><td></td><td class="up" id="b4"></tr>
+<tr><td></td><td class = "up" id="up" onclick="clickHandler('up');"></tr>
+<tr><td class="up" id="left" onclick="clickHandler('left');" ontouchstart="clickHandler('left');"></td><td></td><td id="right" onclick="clickHandler('right');" ontouchstart="clickHandler('right');" class="up"></td><td></td>
+  <td class="up" id="b1" onclick="clickHandler('b1');" ontouchstart="clickHandler('b1');"></td><td class="up" id="b2" ontouchstart="clickHandler('b2');" onclick="clickHandler('b2');"></td><td class="up" id="b3" onclick="clickHandler('b3');" ontouchstart="clickHandler('b3');"></td></tr>
+<tr><td></td><td class="up" id="down" onclick="clickHandler('down');" ontouchstart="clickHandler('down');"></td><td></td><td></td><td class="up" id="b4" onclick="clickHandler('b4');" ontouchstart="clickHandler('b4');"></tr>
 </table>
 </p>
 
 <style>
 .up {background-color: lightgrey}
 .down {background-color: red}
+.clicked {background-color: blue}
 </style>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  var socket = io.connect();
+  var socket = io();
+  
+  var clickHandler = function(val) {
+    socket.emit('clicked', {button: val});
+  };
 
   var toggle = function(node, val) {
-    node.className = (val === 0 ? "down" : "up");
-  }
+    node.className = val;
+  };
+
   socket.on('right', function(data) {
     var d = document.getElementById("right");
     toggle(d, data.v);
@@ -56,5 +63,15 @@
     var d = document.getElementById("b4");
     toggle(d, data.v);
   });
+
+  document.addEventListener("keydown", keyDownTextField, false);
+
+  function keyDownTextField(e) {
+    var keyCode = e.keyCode;
+    // If the user hits space, hit b2
+    if(keyCode==32) {
+      clickHandler('b2');
+    }
+  }
 </script>
 </html>

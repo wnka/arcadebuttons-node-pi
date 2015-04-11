@@ -2,77 +2,136 @@ var app = require('http').createServer(handler)
   , io = require('socket.io').listen(app)
   , fs = require('fs')
   , Gpio = require('onoff').Gpio
-  , up = new Gpio(24, 'in', 'both')
-  , down = new Gpio(17, 'in', 'both')
-  , left = new Gpio(23, 'in', 'both')
-  , right = new Gpio(22, 'in', 'both')
-  , b1 = new Gpio(18, 'in', 'both')
-  , b2 = new Gpio(27, 'in', 'both')
-  , b3 = new Gpio(25, 'in', 'both')
-  , b4 = new Gpio(4, 'in', 'both') // Currently the "start" button
+
+// Represents a "button" we want to interact with.
+// NOTE: I'm viewing joystick directions as buttons too.
+// tag = button name, should match HTML element ID in index.html
+// gpioPin = numeric GPIO pin id
+function Button(tag, gpioPin) {
+  this.tag = tag;
+  this.gpioPin = gpioPin;
+  this.gpio = null;
+  this.downFlag = false;
+}
+
+Button.prototype = {
+  // Stops listening to the GPIO pin
+  stop: function()
+  {
+	if (this.gpio)
+	{
+	  this.gpio.unexport();
+	}
+  },
+  // Starts listening on GPIO pin and emitting events over socket.io
+  listen: function()
+  {
+    // First, stop.  We could have other listeners.
+	this.stop();
+    // We aren't in down state
+	this.downFlag = false;
+    // Set up a new GPIO listener
+    // 'in' means we're reading from the pin
+    // 'both' means we want events on both edges of the pin transition
+	this.gpio = new Gpio(this.gpioPin, 'in', 'both');
+	var thiz = this;
+	this.gpio.watch(function(err, value) {
+	  if (err) exit();
+	  var state = "up";
+	  if (value === 0)
+		state = "down";
+	  io.emit(thiz.tag, {v:state});
+	});
+	io.emit(this.tag, {v:"up"});
+  },
+  // Stops listening on the GPIO pin and presses the button.
+  // In order to do this, we have to stop listening on the pin.
+  down: function()
+  {
+    // If we're already down, we're done.
+    // The reason for this flag is that currently, index.html listens to both
+    // ontouchstart and onclick events, which on an iPhone will (sometimes?) both
+    // fire after tapping on a button. This will also prevent multiple clients from
+    // clicking buttons and causing problems.  Probably a better way to coordinate that,
+    // but this is a start.
+	if (this.downFlag)
+	  return;
+	this.downFlag = true;
+
+    // Emit that this button in now in "clicked" state,
+    // Meaning we are remotely clicking it through index.html
+    // The reason we emit an event for the clicked state is that
+    // there could be multiple viewers of the page, and this way
+    // if one viewer remotely clicks a button, they'll all get notified.
+	io.emit(this.tag, {v:"clicked"});
+	this.stop();
+
+    // Set up a new GPIO object
+    // 'out' means we're able to set the value of the pin and click the button
+	this.gpio = new Gpio(this.gpioPin, 'out')
+	this.gpio.writeSync(0);
+
+    // Currently we just hold the button down for 1 second, then start listening again
+	var thiz = this;
+	setTimeout(function() {
+	  thiz.gpio.writeSync(1);
+	  thiz.listen();
+	}, 1000);
+  }
+};
 
 app.listen(8081);
 
 function handler (req, res) {
   fs.readFile(__dirname + '/index.html',
-  function (err, data) {
-    if (err) {
-      res.writeHead(500);
-      return res.end('Error loading index.html');
-    }
+              function (err, data) {
+                if (err) {
+                  res.writeHead(500);
+                  return res.end('Error loading index.html');
+                }
 
-    res.writeHead(200);
-    res.end(data);
-  });
+                res.writeHead(200);
+                res.end(data);
+              });
 }
 
 io.sockets.on('connection', function (socket) {
-  socket.emit('news', { hello: 'This is Buttons' });
+  console.log('user connected');
+  socket.on('disconnect', function(){
+    console.log('user disconnected');
+  });
+  socket.on('clicked', function(data) {
+    var button = buttons[data["button"]]
+    if (button)
+	  button.down();
+  });
 });
 
-up.watch(function(err, value) {
-    if (err) exit();
-    io.emit('up', {v:value});
-});
-down.watch(function(err, value) {
-    if (err) exit();
-    io.emit('down', {v:value});
-});
-left.watch(function(err, value) {
-    if (err) exit();
-    io.emit('left', {v:value});
-});
-right.watch(function(err, value) {
-    if (err) exit();
-    io.emit('right', {v:value});
-});
-b1.watch(function(err, value) {
-    if (err) exit();
-    io.emit('b1', {v:value});
-});
-b2.watch(function(err, value) {
-    if (err) exit();
-    io.emit('b2', {v:value});
-});
-b3.watch(function(err, value) {
-    if (err) exit();
-    io.emit('b3', {v:value});
-});
-b4.watch(function(err, value) {
-    if (err) exit();
-    io.emit('b4', {v:value});
-});
+// build hashmap of buttons.
+// currently the key names match the HTML element IDs in index.html
+buttons = new Object();
+buttons['up'] = new Button('up', 16);
+buttons['down'] = new Button('down', 6);
+buttons['left'] = new Button('left', 20);
+buttons['right'] = new Button('right', 12);
+buttons['b1'] = new Button('b1', 19);
+buttons['b2'] = new Button('b2', 26);
+buttons['b3'] = new Button('b3', 21);
+buttons['b4'] = new Button('b4', 13);
 
+// Start listening
+for (button in buttons)
+{
+  buttons[button].listen();
+}
+
+// On exit, stop all buttons
 function exit() {
-    up.unexport();
-    down.unexport();
-    left.unexport();
-    right.unexport();
-    b1.unexport();
-    b2.unexport();
-    b3.unexport();
-    b4.unexport();
-    process.exit();
+  for (button in buttons)
+  {
+	buttons[button].stop();
+  }
+  process.exit();
 }
 
 process.on('SIGINT', exit);
