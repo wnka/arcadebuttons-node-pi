@@ -40,7 +40,10 @@ Button.prototype = {
 	  var state = "up";
 	  if (value === 0)
 		state = "down";
-	  io.emit(thiz.tag, {v:state});
+	  // Delay movements by ~4 frames (4/60 = ~66ms).
+	  // This accounts for the delay my capture setup introduces.
+	  // Your milage may vary.
+          setTimeout(function() {io.emit(thiz.tag, {v:state});}, 63);
 	});
 	io.emit(this.tag, {v:"up"});
   },
