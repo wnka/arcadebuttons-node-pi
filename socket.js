@@ -1,7 +1,7 @@
 var app = require('http').createServer(handler)
-  , io = require('socket.io').listen(app)
-  , fs = require('fs')
-  , Gpio = require('onoff').Gpio
+, io = require('socket.io').listen(app)
+, fs = require('fs')
+, Gpio = require('onoff').Gpio;
 
 // Represents a "button" we want to interact with.
 // NOTE: I'm viewing joystick directions as buttons too.
@@ -18,34 +18,36 @@ Button.prototype = {
   // Stops listening to the GPIO pin
   stop: function()
   {
-	if (this.gpio)
-	{
-	  this.gpio.unexport();
-	}
+    if (this.gpio)
+    {
+      this.gpio.unexport();
+    }
   },
   // Starts listening on GPIO pin and emitting events over socket.io
   listen: function()
   {
     // First, stop.  We could have other listeners.
-	this.stop();
+    this.stop();
     // We aren't in down state
-	this.downFlag = false;
+    this.downFlag = false;
     // Set up a new GPIO listener
     // 'in' means we're reading from the pin
     // 'both' means we want events on both edges of the pin transition
-	this.gpio = new Gpio(this.gpioPin, 'in', 'both');
-	var thiz = this;
-	this.gpio.watch(function(err, value) {
-	  if (err) exit();
-	  var state = "up";
-	  if (value === 0)
-		state = "down";
-	  // Delay movements by ~4 frames (4/60 = ~66ms).
-	  // This accounts for the delay my capture setup introduces.
-	  // Your milage may vary.
-          setTimeout(function() {io.emit(thiz.tag, {v:state});}, 63);
-	});
-	io.emit(this.tag, {v:"up"});
+    this.gpio = new Gpio(this.gpioPin, 'in', 'both');
+    var thiz = this;
+    this.gpio.watch(function(err, value) {
+      if (err) exit();
+      var state = "up";
+      if (value === 0)
+      {
+        state = "down";
+      }
+      // Delay movements by ~4 frames (4/60 = ~66ms).
+      // This accounts for the delay my capture setup introduces.
+      // Your milage may vary.
+      setTimeout(function() {io.emit(thiz.tag, {v:state});}, 63);
+    });
+    io.emit(this.tag, {v:"up"});
   },
   // Stops listening on the GPIO pin and presses the button.
   // In order to do this, we have to stop listening on the pin.
@@ -57,29 +59,31 @@ Button.prototype = {
     // fire after tapping on a button. This will also prevent multiple clients from
     // clicking buttons and causing problems.  Probably a better way to coordinate that,
     // but this is a start.
-	if (this.downFlag)
-	  return;
-	this.downFlag = true;
+    if (this.downFlag)
+    {
+      return;
+    }
+    this.downFlag = true;
 
     // Emit that this button in now in "clicked" state,
     // Meaning we are remotely clicking it through index.html
     // The reason we emit an event for the clicked state is that
     // there could be multiple viewers of the page, and this way
     // if one viewer remotely clicks a button, they'll all get notified.
-	io.emit(this.tag, {v:"clicked"});
-	this.stop();
+    io.emit(this.tag, {v:"clicked"});
+    this.stop();
 
     // Set up a new GPIO object
     // 'out' means we're able to set the value of the pin and click the button
-	this.gpio = new Gpio(this.gpioPin, 'out')
-	this.gpio.writeSync(0);
+    this.gpio = new Gpio(this.gpioPin, 'out');
+    this.gpio.writeSync(0);
 
     // Currently we just hold the button down for 1 second, then start listening again
-	var thiz = this;
-	setTimeout(function() {
-	  thiz.gpio.writeSync(1);
-	  thiz.listen();
-	}, 1000);
+    var thiz = this;
+    setTimeout(function() {
+      thiz.gpio.writeSync(1);
+      thiz.listen();
+    }, 1000);
   }
 };
 
@@ -94,7 +98,7 @@ function handler (req, res) {
                 }
 
                 res.writeHead(200);
-                res.end(data);
+                return res.end(data);
               });
 }
 
@@ -104,9 +108,11 @@ io.sockets.on('connection', function (socket) {
     console.log('user disconnected');
   });
   socket.on('clicked', function(data) {
-    var button = buttons[data["button"]]
+    var button = buttons[data["button"]];
     if (button)
-	  button.down();
+    {
+      button.down();
+    }
   });
 });
 
@@ -132,7 +138,7 @@ for (button in buttons)
 function exit() {
   for (button in buttons)
   {
-	buttons[button].stop();
+    buttons[button].stop();
   }
   process.exit();
 }
