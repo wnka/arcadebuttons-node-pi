@@ -1,31 +1,37 @@
-var app = require('http').createServer(handler)
-, io = require('socket.io').listen(app)
-, fs = require('fs')
-, Gpio = require('onoff').Gpio;
+"use strict";
+const app = require('http').createServer(handler);
+const io = require('socket.io').listen(app);
+const fs = require('fs');
+const Gpio = require('onoff').Gpio;
+
+// Different button states
+const BUTTON_UP = "up";
+const BUTTON_DOWN = "down";
+const BUTTON_CLICKED = "clicked";
 
 // Represents a "button" we want to interact with.
 // NOTE: I'm viewing joystick directions as buttons too.
 // tag = button name, should match HTML element ID in index.html
 // gpioPin = numeric GPIO pin id
-function Button(tag, gpioPin) {
-  this.tag = tag;
-  this.gpioPin = gpioPin;
-  this.gpio = null;
-  this.downFlag = false;
-}
-
-Button.prototype = {
+class Button {
+  constructor(tag, gpioPin) {
+    this.tag = tag;
+    this.gpioPin = gpioPin;
+    this.gpio = null;
+    this.downFlag = false;
+  }
   // Stops listening to the GPIO pin
-  stop: function()
+  stop()
   {
     if (this.gpio)
     {
       this.gpio.unexport();
     }
-  },
+  }
   // Starts listening on GPIO pin and emitting events over socket.io
-  listen: function()
+  listen()
   {
+    console.log(`listening for input on ${this.tag}`);
     // First, stop.  We could have other listeners.
     this.stop();
     // We aren't in down state
@@ -34,24 +40,25 @@ Button.prototype = {
     // 'in' means we're reading from the pin
     // 'both' means we want events on both edges of the pin transition
     this.gpio = new Gpio(this.gpioPin, 'in', 'both');
-    var thiz = this;
-    this.gpio.watch(function(err, value) {
+    this.gpio.watch((err, value) => {
       if (err) exit();
-      var state = "up";
+      let state = BUTTON_UP;
       if (value === 0)
       {
-        state = "down";
+        state = BUTTON_DOWN;
       }
       // Delay movements by ~4 frames (4/60 = ~66ms).
       // This accounts for the delay my capture setup introduces.
       // Your milage may vary.
-      setTimeout(function() {io.emit(thiz.tag, {v:state});}, 63);
+      setTimeout(() => {
+        io.emit(this.tag, {v:state});
+      }, 63);
     });
-    io.emit(this.tag, {v:"up"});
-  },
+    io.emit(this.tag, {v:BUTTON_UP});
+  }
   // Stops listening on the GPIO pin and presses the button.
   // In order to do this, we have to stop listening on the pin.
-  down: function()
+  down()
   {
     // If we're already down, we're done.
     // The reason for this flag is that currently, index.html listens to both
@@ -63,29 +70,29 @@ Button.prototype = {
     {
       return;
     }
+    console.log(`Pushing ${this.tag}`);
     this.downFlag = true;
-
+    
     // Emit that this button in now in "clicked" state,
     // Meaning we are remotely clicking it through index.html
     // The reason we emit an event for the clicked state is that
     // there could be multiple viewers of the page, and this way
     // if one viewer remotely clicks a button, they'll all get notified.
-    io.emit(this.tag, {v:"clicked"});
+    io.emit(this.tag, {v:BUTTON_CLICKED});
     this.stop();
-
+    
     // Set up a new GPIO object
     // 'out' means we're able to set the value of the pin and click the button
     this.gpio = new Gpio(this.gpioPin, 'out');
     this.gpio.writeSync(0);
-
+    
     // Currently we just hold the button down for 1 second, then start listening again
-    var thiz = this;
-    setTimeout(function() {
-      thiz.gpio.writeSync(1);
-      thiz.listen();
+    setTimeout(() => {
+      this.gpio.writeSync(1);
+      this.listen();
     }, 1000);
   }
-};
+}
 
 app.listen(8081);
 
@@ -107,8 +114,8 @@ io.sockets.on('connection', function (socket) {
   socket.on('disconnect', function(){
     console.log('user disconnected');
   });
-  socket.on('clicked', function(data) {
-    var button = buttons[data["button"]];
+  socket.on(BUTTON_CLICKED, function(data) {
+    const button = buttons[data["button"]];
     if (button)
     {
       button.down();
@@ -118,7 +125,7 @@ io.sockets.on('connection', function (socket) {
 
 // build hashmap of buttons.
 // currently the key names match the HTML element IDs in index.html
-buttons = new Object();
+const buttons = new Object();
 buttons['up'] = new Button('up', 16);
 buttons['down'] = new Button('down', 6);
 buttons['left'] = new Button('left', 20);
@@ -129,14 +136,14 @@ buttons['b3'] = new Button('b3', 21);
 buttons['b4'] = new Button('b4', 13);
 
 // Start listening
-for (button in buttons)
+for (const button in buttons)
 {
   buttons[button].listen();
 }
 
 // On exit, stop all buttons
 function exit() {
-  for (button in buttons)
+  for (const button in buttons)
   {
     buttons[button].stop();
   }
