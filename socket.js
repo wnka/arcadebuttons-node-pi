@@ -90,7 +90,7 @@ class Button {
     setTimeout(() => {
       this.gpio.writeSync(1);
       this.listen();
-    }, 1000);
+    }, 100);
   }
 }
 
@@ -134,6 +134,7 @@ buttons['b1'] = new Button('b1', 19);
 buttons['b2'] = new Button('b2', 26);
 buttons['b3'] = new Button('b3', 21);
 buttons['b4'] = new Button('b4', 13);
+buttons['coin'] = new Button('coin', 25);
 
 // Start listening
 for (const button in buttons)
