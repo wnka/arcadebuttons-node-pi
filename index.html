@@ -1,68 +1,207 @@
 <html>
 <meta name="viewport" content="initial-scale = 1.0,maximum-scale = 1.0" />
 <head>
-<title>Buttons</title>
+  <title>Buttons</title>
+  <style>
+.joystick {
+  border-radius: 15px;
+  display: inline-block;
+  height: 300px;
+  position: relative;
+  width: 250px;
+}
+
+.joystick:before {
+  border-radius: 50%;
+  box-shadow:
+  -105px -105px 50px 10px rgba(10, 10, 10, 1),
+  -95px -95px 0 50px rgba(20, 20, 20, 1),
+  -96px -96px 0 52px rgba(0, 0, 0, 1),
+  -95px -95px 0 70px rgba(30, 30, 30, 1),
+  -96px -96px 0 72px rgba(0, 0, 0, 1);
+  content: '';
+  display: block;
+  height: 50px;
+  left: 220px;
+  position: absolute;
+  top: 220px;
+  width: 50px;
+}
+
+.joystick.pressed:before {
+  -105px -105px 50px 10px rgba(10, 10, 10, .65),
+  -95px -95px 0 71px rgba(255, 255, 255, .07),
+  -95px -95px 0 50px rgba(20, 20, 20, .3),
+  -96px -96px 0 52px rgba(0, 0, 0, .4),
+  -95px -95px 0 70px rgba(30, 30, 30, .2),
+  -96px -96px 0 72px rgba(0, 0, 0, .4);
+}
+
+.joystick:after {
+  background: radial-gradient(ellipse at 32px 28px, rgb(255, 255, 255) 10%, rgb(55, 225, 55) 11%, rgb(0, 200, 0) 100%);
+  border-radius: 50%;
+  box-shadow: inset 3px 5px 25px rgba(9, 255, 0, .5),
+  inset 3px 5px 35px rgba(205, 255, 205, .75),
+  inset 0 0 5px rgba(205, 255, 205, .75),
+  inset -10px -15px 45px rgba(0, 0, 0, .25),
+  15px 30px 15px 0 rgba(0, 0, 0, .75);
+  content: '';
+  display: block;
+  height: 80px;
+  left: 110px;
+  position: absolute;
+  top: 110px;
+  transition: all .02s linear;
+  width: 80px;
+}
+
+.joystick.up:after {
+  top: 75px;
+}
+
+.joystick.down:after {
+  top: 145px;
+}
+
+.joystick.left:after {
+  left: 75px;
+}
+
+.joystick.right:after {
+  left: 145px;
+}
+
+.joystick.up.left:after {
+  left: 85px;
+  top: 85px;
+}
+
+.joystick.up.right:after {
+  left: 135px;
+  top: 85px;
+}
+
+.joystick.down.left:after {
+  left: 85px;
+  top: 135px;
+}
+
+.joystick.down.right:after {
+  left: 135px;
+  top: 135px;
+}
+
+.button {
+  border-radius: 15px;
+  display: inline-block;
+  height: 300px;
+  position: relative;
+  width: 60px;
+}
+
+.button:before {
+  background: radial-gradient(rgb(0, 175, 0), rgb(0, 200, 0));
+  border-radius: 50%;
+  box-shadow: inset -10px -15px 45px rgba(255, 255, 255, .25),
+  inset 0 0 0 2px rgb(55, 250, 55),
+  inset 2px 3px 0 0 rgb(255, 255, 255),
+  inset -2px -3px 0 0 rgb(255, 255, 255),
+  0 0 0 5px rgb(0, 150, 0),
+  -1px -1px 0 5px rgb(0, 255, 0);
+  content: '';
+  display: block;
+  height: 50px;
+  left: 15px;
+  position: absolute;
+  top: 65px;
+  width: 50px;
+}
+
+.button.pressed:before {
+  background: rgb(255, 255, 0);
+  box-shadow: inset -10px -15px 45px rgba(185, 255, 185, .25),
+  inset 1px 1px 4px 1px rgba(0, 0, 0, .85),
+  0 0 0 5px rgb(0, 150, 0),
+  inset -1px -1px 0 0 rgba(100, 250, 100, .75),
+  -1px -1px 0 5px rgb(0, 225, 0);
+}
+
+.button:after {
+  content: '';
+  display: block;
+  height: 80px;
+  position: absolute;
+  transition: all .02s linear;
+  width: 80px;
+}
+  </style>
 </head>
 
 <body bgcolor="green">
-<p align = "center">
-<table border=0 width="80%" height="60%">
-<tr><td></td><td class = "up" id="up" onclick="clickHandler('up');"></tr>
-<tr><td class="up" id="left" onclick="clickHandler('left');" ontouchstart="clickHandler('left');"></td><td></td><td id="right" onclick="clickHandler('right');" ontouchstart="clickHandler('right');" class="up"></td><td></td>
-  <td class="up" id="b1" onclick="clickHandler('b1');" ontouchstart="clickHandler('b1');"></td><td class="up" id="b2" ontouchstart="clickHandler('b2');" onclick="clickHandler('b2');"></td><td class="up" id="b3" onclick="clickHandler('b3');" ontouchstart="clickHandler('b3');"></td></tr>
-<tr><td></td><td class="up" id="down" onclick="clickHandler('down');" ontouchstart="clickHandler('down');"></td><td></td><td></td><td class="up" id="b4" onclick="clickHandler('b4');" ontouchstart="clickHandler('b4');"></tr>
-</table>
-</p>
-
-<style>
-.up {background-color: lightgrey}
-.down {background-color: red}
-.clicked {background-color: blue}
-</style>
+<div class="joystick" id="joystick"></div>
+<div class="button" style="top:30px;left:5px;" id="button1"></div>
+<div class="button" id="button2"></div>
+<div class="button" style="top:5px;" id="button3"></div>
+<div class="button" style="left:-200px;top:100px;" id="button4"></div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
   var socket = io();
+  var joystickPosition = {};
 
+  var joystick = document.getElementById('joystick');
+  var button1 = document.getElementById('button1');
+  var button2 = document.getElementById('button2');
+  var button3 = document.getElementById('button3');
+  var button4 = document.getElementById('button4');
   var clickHandler = function(val) {
     socket.emit('clicked', {button: val});
   };
 
-  var toggle = function(node, val) {
-    node.className = val;
-  };
+  var updateJoystick = function(switchName, val) {
+    if (val == "down") {
+      joystickPosition[switchName] = true;
+    } else {
+      joystickPosition[switchName] = false;
+    }
+    var classNames = ['joystick'];
+    Object.keys(joystickPosition).forEach(function (key) {
+      if (joystickPosition[key]) classNames.push(key);
+    });
+    joystick.className = classNames.join(' ');
+  }
 
+  var updateButton = function(button, val) {
+    if (val == "down") {
+      button.className = "button pressed"
+    } else {
+      button.className = "button"
+    }
+  }
+  
   socket.on('right', function(data) {
-    var d = document.getElementById("right");
-    toggle(d, data.v);
+    updateJoystick("right", data.v);
   });
   socket.on('left', function(data) {
-    var d = document.getElementById("left");
-    toggle(d, data.v);
+    updateJoystick("left", data.v);
   });
   socket.on('up', function(data) {
-    var d = document.getElementById("up");
-    toggle(d, data.v);
+    updateJoystick("up", data.v);
   });
   socket.on('down', function(data) {
-    var d = document.getElementById("down");
-    toggle(d, data.v);
+    updateJoystick("down", data.v);
   });
   socket.on('b1', function(data) {
-    var d = document.getElementById("b1");
-    toggle(d, data.v);
+    updateButton(button1, data.v);
   });
   socket.on('b2', function(data) {
-    var d = document.getElementById("b2");
-    toggle(d, data.v);
+    updateButton(button2, data.v);
   });
   socket.on('b3', function(data) {
-    var d = document.getElementById("b3");
-    toggle(d, data.v);
+    updateButton(button3, data.v);
   });
   socket.on('b4', function(data) {
-    var d = document.getElementById("b4");
-    toggle(d, data.v);
+    updateButton(button4, data.v);
   });
 
   document.addEventListener("keydown", keyDownTextField, false);
