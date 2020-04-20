@@ -145,6 +145,7 @@
 <div class="button" style="left:-200px;top:100px;" id="button4"></div>
 
 <script src="/socket.io/socket.io.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mojs/core"></script>
 <script>
   var socket = io();
   var joystickPosition = {};
@@ -174,9 +175,27 @@
   var updateButton = function(button, val) {
     if (val == "down") {
       button.className = "button pressed"
+      pressEffect = new mojs.Shape({
+        parent:       button,
+        shape:        'circle',
+        radius:       30,
+        isShowStart:  false,
+        fill:         'transparent',
+        stroke:       '#FFFF00',
+        strokeWidth:  5,
+        duration:      100,
+        y:            -60,
+        x:            10
+      }).then({
+        strokeWidth:  20,
+        scale:        { to: 2, easing: 'sin.in' },
+      }).then ({
+        strokeWidth:  0
+      });
     } else {
       button.className = "button"
     }
+    pressEffect.play();
   }
   
   socket.on('right', function(data) {
