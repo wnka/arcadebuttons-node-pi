@@ -51,7 +51,7 @@
   left: 110px;
   position: absolute;
   top: 110px;
-  transition: all .02s linear;
+  transition: all .05s linear;
   width: 80px;
 }
 
@@ -192,10 +192,10 @@
       }).then ({
         strokeWidth:  0
       });
+      pressEffect.play();
     } else {
       button.className = "button"
     }
-    pressEffect.play();
   }
   
   socket.on('right', function(data) {
