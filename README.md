@@ -12,3 +12,7 @@ I play arcade games (mostly shmups) and sometimes stream on [twitch.tv](http://t
 I have a Raspberry Pi under the control panel of my arcade cabinet with the control wires split off and plugged into the GPIO pins. This app provides a nice display that I can use while streaming. This is probably not the easiest or most lightweight way to do this but I wanted to play around with Node.js and the asynchronous nature of human inputs seemed like a good project to learn with.
 
 After upgrading to a Raspberry Pi 2 and using a wired ethernet connection between the Pi and the PC I use for streaming, the lag in the inputs is virtually non-existant and the display is rock solid.
+
+# Note
+
+[This thread on Twitter](https://twitter.com/wnka/status/1384361401301360647) discusses how one user needed to convert the 5v from the arcade inputs down to 3.3v for the Pi. Your mileage may vary, I've never needed to do this but you might!
