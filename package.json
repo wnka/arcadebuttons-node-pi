@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "socket.io": "2.x",
-    "onoff": "1.x"
+    "socket.io": "4.x",
+    "onoff": "6.x"
   }
 }

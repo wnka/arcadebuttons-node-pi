@@ -1,6 +1,7 @@
 "use strict";
 const app = require('http').createServer(handler);
-const io = require('socket.io').listen(app);
+const { Server } = require('socket.io');
+const io = new Server(app)
 const fs = require('fs');
 const Gpio = require('onoff').Gpio;
 
