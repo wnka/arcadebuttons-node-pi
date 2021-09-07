@@ -17,6 +17,27 @@ After upgrading to a Raspberry Pi 2 and using a wired ethernet connection betwee
 
 Tested on Node 16.x
 
+# systemd script to start on boot
+
+Tested on a Raspberry Pi. You might need to change the `User` and path in `ExecStart`.
+
+```
+[Unit]
+Description=Buttons Input Display
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=pi
+ExecStart=/usr/bin/env node /home/pi/arcadebuttons-node-pi/socket.js
+
+[Install]
+WantedBy=multi-user.target
+```
+
 # Note
 
 [This thread on Twitter](https://twitter.com/wnka/status/1384361401301360647) discusses how one user needed to convert the 5v from the arcade inputs down to 3.3v for the Pi. Your mileage may vary, I've never needed to do this but you might!
